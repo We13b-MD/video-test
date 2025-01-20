@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=!, initial-scale=1.0">
+    <title>videoTest</title>
+<style>
+   #video .image{
+   
+   }
+</style>
+<div id="videoBody" style="position: relative; width: 300px; height: 250px;">
+    <!-- Video Element -->
+    <video
+      id="videoElement"
+      src="https://res.cloudinary.com/dcm7hopww/video/upload/v1737197826/Zabira_300_by_250_with_report_epkxss.mp4"
+      width="300"
+      height="250"
+      muted
+      controls
+      style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;"
+    ></video>
+    
+    <!-- Overlay Image -->
+    <img
+      class="image"
+      onclick="goToLink()"
+      src="https://res.cloudinary.com/dcm7hopww/image/upload/v1737360041/Group_13_yizjy5.png"
+      style="position: absolute; top: 68%; left: 50%; transform: translate(-50%, -50%); z-index: 2; cursor: pointer;"
+      width="100"
+      alt="Play Button"
+    />
+  </div>
+  
+
+
+
+
+    </div>
+</head>
+<body>
+    
+    <script>
+
+const dailyData = {
+      date: new Date().toISOString().split('T')[0],
+      imp: 0, // Impression count
+      clicks: 0,
+      ctr: 0,
+      videoStart: 0,
+      first: 0,
+      sec: 0,
+      third: 0,
+      completed: 0,
+      vtr: 0,
+      mobile: 0,
+      desktop: 0,
+      tablet: 0,
+      safari: 0,
+      chrome: 0,
+      edge: 0,
+      windows: 0,
+      macOS: 0,
+      linux: 0,
+      android: 0,
+      ios: 0,
+    };
+
+    console.log(dailyData)
+
+
+    const updateAndSendData = async (dailyData) => {
+  try {
+    // Prepare updated data (use values directly from dailyData)
+    const updatedData = {
+      date: new Date().toISOString().split('T')[0],
+      imp: dailyData.imp,
+      clicks: dailyData.clicks,
+      ctr: parseFloat((dailyData.clicks / dailyData.imp || 0).toFixed(2)),
+      first: dailyData.first,
+      sec: dailyData.sec,
+      videoStart: dailyData.videoStart,
+      completed: dailyData.completed,
+      vtr: parseFloat((dailyData.completed / dailyData.videoStart || 0).toFixed(2)),
+      safari: dailyData.safari,
+      chrome: dailyData.chrome,
+      edge: dailyData.edge,
+      desktop: dailyData.desktop,
+      mobile: dailyData.mobile,
+      tablet: dailyData.tablet,
+      linux: dailyData.linux,
+      ios: dailyData.ios,
+      android: dailyData.android,
+      macOS: dailyData.macOS,
+      windows: dailyData.windows,
+    };
+
+    console.log('Sending updated data:', updatedData);
+
+    // Send the updated data to the backend
+    const response = await fetch('http://localhost:8000/api/upload', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updatedData),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to send data: ${response.statusText}`);
+    }
+
+    const responseData = await response.json();
+   
+    console.log('Data successfully sent to the backend:');
+  } catch (error) {
+    console.error('Error sending data to the backend:', error);
+  }
+};
+
+
+updateAndSendData(dailyData)
+
+
+function goToLink() {
+    dailyData.clicks++
+  window.open("https://digitaltribe.com.ng/", "_blank");
+}
+
+let debounceTimer;
+function debounce(func, delay) {
+  return function () {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => func.apply(this, arguments), delay);
+  };
+}
+
+
+// Apply debounce to limit API calls
+const debouncedFetchData = debounce(updateAndSendData(dailyData), 300);
+
+    const videoElement = document.getElementById('videoElement');
+
+    /*
+    function detectEnvironment() {
+
+
+  const userAgent = navigator.userAgent.toLowerCase();
+
+  // Detect device type
+  let deviceType = '';
+  if (/mobile/.test(userAgent) && !/tablet/.test(userAgent)) {
+    deviceType = 'mobile';
+  } else if (/tablet/.test(userAgent)) {
+    deviceType = 'tablet';
+  } else {
+    deviceType = 'desktop';
+  }
+
+  // Detect browser type
+  let browserType = '';
+  if (/chrome/.test(userAgent) && !/edge/.test(userAgent)) {
+    browserType = 'chrome';
+  } else if (/safari/.test(userAgent) && !/chrome/.test(userAgent)) {
+    browserType = 'safari';
+  } else if (/edge/.test(userAgent)) {
+    browserType = 'edge';
+  }
+
+  // Detect OS type
+  let osType = '';
+  if (/windows/.test(userAgent)) {
+    osType = 'windows';
+  } else if (/macintosh/.test(userAgent)) {
+    osType = 'macOS';
+  } else if (/linux/.test(userAgent)) {
+    osType = 'linux';
+  } else if (/android/.test(userAgent)) {
+    osType = 'android';
+  } else if (/iphone|ipad|ipod/.test(userAgent)) {
+    osType = 'ios';
+  }
+
+  // Increment impressions and synchronize counts
+  if (deviceType && browserType && osType) {
+    dailyData.imp++;
+
+    // Increment device counts
+    if (deviceType === 'mobile') {
+      dailyData.mobile++;
+    } else if (deviceType === 'tablet') {
+      dailyData.tablet++;
+    } else if (deviceType === 'desktop') {
+      dailyData.desktop++;
+    }
+
+    // Increment browser counts
+    if (browserType === 'chrome') {
+      dailyData.chrome++;
+    } else if (browserType === 'safari') {
+      dailyData.safari++;
+    } else if (browserType === 'edge') {
+      dailyData.edge++;
+    }
+
+    // Increment OS counts
+    if (osType === 'windows') {
+      dailyData.windows++;
+    } else if (osType === 'macOS') {
+      dailyData.macOS++;
+    } else if (osType === 'linux') {
+      dailyData.linux++;
+    } else if (osType === 'android') {
+      dailyData.android++;
+    } else if (osType === 'ios') {
+      dailyData.ios++;
+    }
+
+    updateAndSendData(dailyData); // Update and send data
+  } else {
+    console.warn('Incomplete environment detection, skipping impression.');
+  }
+}*/
+
+
+function detectEnvironment() {
+  const userAgent = navigator.userAgent.toLowerCase();
+
+
+  // Detect device type
+  let deviceType = '';
+  if (/mobile/.test(userAgent) && !/tablet/.test(userAgent)) {
+    deviceType = 'mobile';
+  } else if (/tablet/.test(userAgent) || (/ipad/.test(userAgent) && !/mobile/.test(userAgent))) {
+    deviceType = 'tablet';
+  } else {
+    deviceType = 'desktop';
+  }
+
+
+  // Detect browser type
+  let browserType = '';
+  if (/chrome/.test(userAgent) && !/edge/.test(userAgent) && !/opr/.test(userAgent)) {
+    browserType = 'chrome';
+  } else if (/safari/.test(userAgent) && !/chrome/.test(userAgent)) {
+    browserType = 'safari';
+  } else if (/edge/.test(userAgent)) {
+    browserType = 'edge';
+  }
+
+  
+
+  // Detect OS type
+  let osType = '';
+  if (/windows/.test(userAgent)) {
+    osType = 'windows';
+  } else if (/macintosh|mac os x/.test(userAgent)) {
+    osType = 'macOS';
+  } else if (/linux/.test(userAgent)) {
+    osType = 'linux';
+  } else if (/android/.test(userAgent)) {
+    osType = 'android';
+  } else if (/iphone|ipad|ipod/.test(userAgent)) {
+    osType = 'ios';
+  }
+
+
+
+  // Increment impressions and synchronize counts
+  if (deviceType && browserType && osType) {
+   
+
+    // Increment device counts
+    if (deviceType === 'mobile') {
+      dailyData.mobile++;
+    } else if (deviceType === 'tablet') {
+      dailyData.tablet++;
+    } else if (deviceType === 'desktop') {
+      dailyData.desktop++;
+    }
+
+    // Increment browser counts
+    if (browserType === 'chrome') {
+      dailyData.chrome++;
+    } else if (browserType === 'safari') {
+      dailyData.safari++;
+    } else if (browserType === 'edge') {
+      dailyData.edge++;
+    }
+
+    // Increment OS counts
+    if (osType === 'windows') {
+      dailyData.windows++;
+    } else if (osType === 'macOS') {
+      dailyData.macOS++;
+    } else if (osType === 'linux') {
+      dailyData.linux++;
+    } else if (osType === 'android') {
+      dailyData.android++;
+    } else if (osType === 'ios') {
+      dailyData.ios++;
+    }
+
+    updateAndSendData(dailyData); // Update and send data
+  } else {
+    console.warn('Incomplete environment detection, skipping impression.');
+  }
+}
+
+// Call the function
+detectEnvironment();
+
+
+ // Flag to ensure unique impressions
+
+/*function trackImpressions() {
+  if (videoElement && !hasImpressionBeenTracked) {
+    // Count impression only if the video is playing for the first time
+    dailyData.imp++;
+    updateAndSendData(dailyData);
+    hasImpressionBeenTracked = true; // Mark as tracked
+  }
+}
+
+    trackImpressions()
+
+
+
+function trackVideoQuartiles() {
+      let firstQuartileReached = false;
+      let secondQuartileReached = false;
+      let thirdQuartileReached = false;
+      let completedRecorded = false;
+
+      videoElement.addEventListener('play', () => {
+        dailyData.videoStart++;
+        updateAndSendData(dailyData)
+      });
+
+      videoElement.addEventListener('timeupdate', () => {
+        const duration = videoElement.duration;
+        const currentTime = videoElement.currentTime;
+           
+        if (duration > 0) {
+          // First quartile: 25% of video duration
+          if (currentTime >= duration * 0.25 && !firstQuartileReached) {
+            dailyData.first++;
+
+            firstQuartileReached = true;
+           
+          }
+
+          // Second quartile: 50% of video duration
+          if (currentTime >= duration * 0.50 && !secondQuartileReached) {
+            dailyData.sec++;
+             
+            secondQuartileReached = true;
+          
+          }
+
+          // Third quartile: 75% of video duration
+          if (currentTime >= duration * 0.75 && !thirdQuartileReached) {
+            dailyData.third++;
+             
+            thirdQuartileReached = true;
+          }
+          // Video completion
+          if (currentTime >= duration && !completedRecorded) {
+            dailyData.completed++;
+             
+            completedRecorded = true;
+         
+          }
+        }
+      });
+
+      // Reset tracking when video ends
+      videoElement.addEventListener('ended', () => {
+        dailyData.completed++;
+        firstQuartileReached = false;
+        secondQuartileReached = false;
+        thirdQuartileReached = false;
+        completedRecorded = false;
+        hasImpressionBeenTracked = false;
+      });
+    }
+
+    // Initialize video tracking
+    if (videoElement) {
+      trackVideoQuartiles();
+    }*/
+
+
+    // Flag for tracking impressions
+/*let hasImpressionBeenTracked = false;
+
+function trackImpressions() {
+    if(videoElement){
+        dailyData.imp++;
+    updateAndSendData(dailyData);
+    hasImpressionBeenTracked = true; // Mark as tracked
+    }
+ 
+  
+}*/
+
+let hasImpressionBeenTracked = false; // Flag to ensure one impression per session
+
+function trackImpressions() {
+  if (videoElement && !hasImpressionBeenTracked) {
+    // Increment impressions and send data
+    dailyData.imp = (dailyData.imp || 0) + 1; // Safeguard if imp is undefined
+    updateAndSendData(dailyData);
+
+    // Mark impression as tracked for this session
+    hasImpressionBeenTracked = true;
+  }
+}
+
+videoElement.addEventListener('play', trackImpressions);
+
+// Track video quartiles and completion
+/*function trackVideoQuartiles() {
+  let firstQuartileReached = false;
+  let secondQuartileReached = false;
+  let thirdQuartileReached = false;
+  let completedRecorded = false;
+  let hasVideoStarted  = false;
+  // Increment video start count when the video starts playing
+  videoElement.addEventListener('play', () => {
+    if(!hasVideoStarted){
+      dailyData.videoStart++;
+      updateAndSendData(dailyData);
+      hasVideoStarted = true;
+    }
+   
+  });
+
+  // Monitor video progress for quartile tracking
+  videoElement.addEventListener('timeupdate', () => {
+    const duration = videoElement.duration;
+    const currentTime = videoElement.currentTime;
+
+    if (duration > 0) {
+      // First quartile: 25% of video duration
+      if (currentTime >= duration * 0.25 && !firstQuartileReached) {
+        dailyData.first++;
+        updateAndSendData(dailyData);
+        firstQuartileReached = true;
+      }
+
+      // Second quartile: 50% of video duration
+      if (currentTime >= duration * 0.50 && !secondQuartileReached) {
+        dailyData.sec++;
+        updateAndSendData(dailyData);
+        secondQuartileReached = true;
+      }
+
+      // Third quartile: 75% of video duration
+      if (currentTime >= duration * 0.75 && !thirdQuartileReached) {
+        dailyData.third++;
+        updateAndSendData(dailyData);
+        thirdQuartileReached = true;
+      }
+
+      // Video completion
+      if (currentTime >= duration && !completedRecorded) {
+        dailyData.completed++;
+        updateAndSendData(dailyData);
+        completedRecorded = true;
+      }
+    }
+  });
+
+  // Reset flags when the video ends
+  videoElement.addEventListener('ended', () => {
+    firstQuartileReached = false;
+    secondQuartileReached = false;
+    thirdQuartileReached = false;
+    completedRecorded = false;
+    hasImpressionBeenTracked = false; // Reset impression tracking for next session
+    hasVideoStarted = false;
+  });
+}
+
+// Initialize video tracking
+if (videoElement) {
+  trackVideoQuartiles();
+}dailyData
+
+*/
+
+
+
+
+// Track video quartiles and completion
+/*function trackVideoQuartiles() {
+  let firstQuartileReached = false;
+  let secondQuartileReached = false;
+  let thirdQuartileReached = false;
+  let completedRecorded = false;
+  let hasVideoStarted = false;
+
+  // Debounce timer variable
+  let debounceTimer;
+  let lastTimeUpdate = 0; // To keep track of the last time update
+
+  // Increment video start count when the video starts playing
+  videoElement.addEventListener('play', () => {
+    if (!hasVideoStarted) {
+      dailyData.videoStart++;
+      updateAndSendData(dailyData);
+      hasVideoStarted = true; // Mark video start as counted
+    }
+  });
+
+  // Monitor video progress for quartile tracking with debounced timeupdate
+  videoElement.addEventListener('timeupdate', () => {
+    const duration = videoElement.duration;
+    const currentTime = videoElement.currentTime;
+
+    // Only process updates if the current time has changed significantly
+    if (currentTime - lastTimeUpdate >= 0.5) { // Adjust the debounce delay as needed (500ms)
+      clearTimeout(debounceTimer); // Clear previous timer if any
+
+      debounceTimer = setTimeout(() => {
+        // Update last time update
+        lastTimeUpdate = currentTime;
+
+        if (duration > 0) {
+          // First quartile: 25% of video duration
+          if (currentTime >= duration * 0.25 && !firstQuartileReached) {
+            dailyData.first++;
+            updateAndSendData(dailyData);
+            firstQuartileReached = true;
+          }
+
+          // Second quartile: 50% of video duration
+          if (currentTime >= duration * 0.50 && !secondQuartileReached) {
+            dailyData.sec++;
+            updateAndSendData(dailyData);
+            secondQuartileReached = true;
+          }
+
+          // Third quartile: 75% of video duration
+          if (currentTime >= duration * 0.75 && !thirdQuartileReached) {
+            dailyData.third++;
+            updateAndSendData(dailyData);
+            thirdQuartileReached = true;
+          }
+
+          // Video completion
+          if (currentTime >= duration && !completedRecorded) {
+            dailyData.completed++;
+            updateAndSendData(dailyData);
+            completedRecorded = true;
+          }
+        }
+      }, 500); // Delay for debounce (500ms)
+    }
+  });
+
+  // Reset flags when the video ends
+  videoElement.addEventListener('ended', () => {
+    firstQuartileReached = false;
+    secondQuartileReached = false;
+    thirdQuartileReached = false;
+    completedRecorded = false;
+    hasImpressionBeenTracked = false; // Reset impression tracking for next session
+    hasVideoStarted = false;
+  });
+}
+
+// Initialize video tracking
+if (videoElement) {
+  trackVideoQuartiles();
+}
+
+/*function throttle(func, limit) {
+  let inThrottle;
+  return function (...args) {
+    if (!inThrottle) {
+      func.apply(this, args);
+      inThrottle = true;
+      setTimeout(() => (inThrottle = false), limit);
+    }
+  };
+}
+
+
+function trackVideoQuartiles(){
+  let firstQuartileReached = false;
+  let secondQuartileReached = false;
+  let thirdQuartileReached = false;
+  let completedRecorded = false; 
+
+  videoElement.addEventListener('timeupdate', throttle(() => {
+  const duration = videoElement.duration;
+  const currentTime = videoElement.currentTime;
+
+  if (duration > 0) {
+    // First quartile: 25% of video duration
+    if (currentTime >= duration * 0.25 && !firstQuartileReached) {
+      dailyData.first++;
+      updateAndSendData(dailyData);
+      firstQuartileReached = true;
+    }
+
+    // Second quartile: 50% of video duration
+    if (currentTime >= duration * 0.50 && !secondQuartileReached) {
+      dailyData.sec++;
+      updateAndSendData(dailyData);
+      secondQuartileReached = true;
+    }
+
+    // Third quartile: 75% of video duration
+    if (currentTime >= duration * 0.75 && !thirdQuartileReached) {
+      dailyData.third++;
+      updateAndSendData(dailyData);
+      thirdQuartileReached = true;
+    }
+
+    // Completion
+    if (currentTime >= duration && !completedRecorded) {
+      dailyData.completed++;
+      updateAndSendData(dailyData);
+      completedRecorded = true;
+    }
+  }
+}, 200)); // Throttle to execute every 200ms
+
+
+
+}*/
+
+//trackVideoQuartiles()
+/*function trackImpressions() {
+      // You can track impressions when the video is visible or plays.
+      // For example, every time the video starts, we count it as an impression.
+      if (videoElement && videoElement.paused) {
+        dailyData.imp++;
+        updateAndSendData(dailyData)
+      }
+    }
+*/
+   
+// Function to handle video quartiles and completion tracking
+function handleVideoQuartiles(event) {
+  const videoElement = event.target; // Get the video element from the event
+  const duration = videoElement.duration;
+  const currentTime = videoElement.currentTime;
+
+  // Ensure duration is valid
+  if (duration > 0) {
+    // Track quartiles and completion
+    if (!videoElement.firstQuartileReached && currentTime >= duration * 0.25) {
+      dailyData.first++;
+      updateAndSendData(dailyData);
+      videoElement.firstQuartileReached = true; // Mark first quartile as reached
+    }
+
+    if (!videoElement.secondQuartileReached && currentTime >= duration * 0.50) {
+      dailyData.sec++;
+      updateAndSendData(dailyData);
+      videoElement.secondQuartileReached = true; // Mark second quartile as reached
+    }
+
+    if (!videoElement.thirdQuartileReached && currentTime >= duration * 0.75) {
+      dailyData.third++;
+      updateAndSendData(dailyData);
+      videoElement.thirdQuartileReached = true; // Mark third quartile as reached
+    }
+
+    if (!videoElement.completedRecorded && currentTime >= duration) {
+      dailyData.completed++;
+      updateAndSendData(dailyData);
+      videoElement.completedRecorded = true; // Mark completion as recorded
+    }
+  }
+}
+
+// Function to initialize video tracking
+function initializeVideoTracking(videoElement) {
+  // Attach single event listener for play event
+  videoElement.addEventListener('play', () => {
+    if (!videoElement.hasVideoStarted) {
+      dailyData.videoStart++;
+      updateAndSendData(dailyData);
+      videoElement.hasVideoStarted = true; // Mark video start as tracked
+    }
+  });
+
+  // Attach a single event listener for timeupdate
+  videoElement.addEventListener('timeupdate', handleVideoQuartiles);
+
+  // Reset flags when the video ends
+  videoElement.addEventListener('ended', () => {
+    videoElement.firstQuartileReached = false;
+    videoElement.secondQuartileReached = false;
+    videoElement.thirdQuartileReached = false;
+    videoElement.completedRecorded = false;
+    videoElement.hasVideoStarted = false;
+  });
+}
+
+// Initialize video tracking for the specific video element
+if (videoElement) {
+  initializeVideoTracking(videoElement);
+}
+
+
+
+
+    </script>
+</body>
+</html>
